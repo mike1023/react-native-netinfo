@@ -216,14 +216,17 @@ RCT_EXPORT_METHOD(getCurrentState:(nullable NSString *)requestedInterface resolv
   NSArray *interfaceNames = CFBridgingRelease(CNCopySupportedInterfaces());
   NSDictionary *SSIDInfo;
   NSString *SSID = NULL;
-  for (NSString *interfaceName in interfaceNames) {
-    SSIDInfo = CFBridgingRelease(CNCopyCurrentNetworkInfo((__bridge CFStringRef)interfaceName));
-    if (SSIDInfo.count > 0) {
-        SSID = SSIDInfo[@"SSID"];
-        if ([SSID isEqualToString:@"Wi-Fi"] || [SSID isEqualToString:@"WLAN"]){
-          SSID = NULL;
-        }
-        break;
+  CGFloat deviceVersion = [[UIDevice currentDevice].systemVersion floatValue];
+  if (deviceVersion < 13) {
+    for (NSString *interfaceName in interfaceNames) {
+      SSIDInfo = CFBridgingRelease(CNCopyCurrentNetworkInfo((__bridge CFStringRef)interfaceName));
+      if (SSIDInfo.count > 0) {
+          SSID = SSIDInfo[@"SSID"];
+          if ([SSID isEqualToString:@"Wi-Fi"] || [SSID isEqualToString:@"WLAN"]){
+            SSID = NULL;
+          }
+          break;
+      }
     }
   }
   return SSID;
@@ -234,13 +237,16 @@ RCT_EXPORT_METHOD(getCurrentState:(nullable NSString *)requestedInterface resolv
   NSArray *interfaceNames = CFBridgingRelease(CNCopySupportedInterfaces());
   NSDictionary *networkDetails;
   NSString *BSSID = NULL;
-  for (NSString *interfaceName in interfaceNames) {
-      networkDetails = CFBridgingRelease(CNCopyCurrentNetworkInfo((__bridge CFStringRef)interfaceName));
-      if (networkDetails.count > 0)
-      {
-          BSSID = networkDetails[(NSString *) kCNNetworkInfoKeyBSSID];
-          break;
-      }
+  CGFloat deviceVersion = [[UIDevice currentDevice].systemVersion floatValue];
+  if (deviceVersion < 13) {
+    for (NSString *interfaceName in interfaceNames) {
+        networkDetails = CFBridgingRelease(CNCopyCurrentNetworkInfo((__bridge CFStringRef)interfaceName));
+        if (networkDetails.count > 0)
+        {
+            BSSID = networkDetails[(NSString *) kCNNetworkInfoKeyBSSID];
+            break;
+        }
+    }
   }
   return BSSID;
 }
